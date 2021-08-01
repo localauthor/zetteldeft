@@ -390,9 +390,8 @@ If there is only one result, open that file (unless DNTOPN is true)."
   (when (deft-buffer-visible-p)
     (select-window (deft-buffer-visible-p)))
   ;; Call deft search on the filter string
-  (let ((deft-incremental-search t))
-   (deft)
-   (deft-filter str t))
+  (deft)
+  (deft-filter str t)
   ;; If there is a single match, open the file
   (unless dntOpn
    (when (eq (length deft-current-files) 1)
