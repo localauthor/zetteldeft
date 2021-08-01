@@ -1788,6 +1788,50 @@ Only the first instance of the selected tag is removed."
       (when (looking-at " ") (delete-char 1)))))
 #+end_src
 
+*** Tag base notes
+
+A /tag base/ is a note with a list of links to all other notes containing the tag in question.
+
+Below are some experiments.
+
+Follow a tag to its tag base note.
+
+#+BEGIN_SRC emacs-lisp
+;;;###autoload
+(defun zetteldeft-follow-tag-base ()
+  "Call on avy to jump to a tag, and open its base note.
+A tag base is the (single) note with a search operation for the tag.
+Tags are filtered with `zetteldeft-tag-regex'."
+  (interactive)
+  (let ((tag nil)
+        (deft-incremental-search nil)  ; Use Deft regexp search mode
+        (avy-all-windows nil))
+    (save-excursion
+      (if (consp (avy-jump zetteldeft-tag-regex))
+      (setq tag (zetteldeft--get-thing-at-point))
+        (user-error "No Zetteldeft tag found in current buffer.")))
+    (message "Opening tag base for %s" tag)
+    (zetteldeft--search-global
+      (concat "(zetteldeft-list-links \"" tag "\""))))
+#+END_SRC
+
+By setting =deft-incremental-search= to =nil=, we ensure the search string is considered a regexp itself (rather than the default, where each word is a subfilter).
+
+Prompt for a tag and open the corredsponding tag base note.
+
+#+BEGIN_SRC emacs-lisp
+;;;###autoload
+(defun zetteldeft-open-tag-base ()
+  "Find the tag-base for a tag.
+
+A tag base is the (single) note with a search operation for the tag."
+  (interactive)
+  (let* ((tags (zetteldeft--get-all-sorted-tags))
+         (prompt (completing-read "Tag to search for: " tags))
+         (search-term (concat "(zetteldeft-list-links \"" prompt "\"")))
+    (zetteldeft--search-global search-term)))
+#+END_SRC
+
 *** Listing all tags
 :PROPERTIES:
 :CUSTOM_ID: list-tags
